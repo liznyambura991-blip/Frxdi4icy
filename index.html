@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Smart Car Buyer — Affordability Calculator</title>
+<style>
+:root{--bg:#0b0d10;--card:#14181d;--card2:#1b2128;--line:#262e38;--tx:#eef1f4;--mut:#8b96a3;--acc:#ff4d2e;--ok:#2fd18b;--mid:#f5b83d;--bad:#ff4d4d;color-scheme:dark;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(900px 500px at 50% -10%,#1d242d 0,var(--bg) 60%) fixed,var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.45;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:520px;margin:0 auto;padding:20px 16px 40px}
+.brand{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);font-weight:700;display:flex;align-items:center;gap:8px}
+.brand i{display:inline-block;width:22px;height:3px;background:var(--acc);border-radius:2px}
+section{display:none;animation:in .25s ease}
+section.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){section{animation:none}}
+h1{font-size:clamp(2.1rem,9vw,3rem);line-height:1.05;margin:18vh 0 14px;letter-spacing:-.02em}
+h1 em{font-style:normal;color:var(--acc)}
+h2{font-size:1.6rem;margin:6px 0 4px;letter-spacing:-.01em}
+.sub{color:var(--mut);font-size:1.05rem;margin:0 0 28px}
+.lead{color:var(--mut);margin:0 0 20px}
+.prog{height:4px;background:var(--line);border-radius:2px;margin:18px 0 22px;overflow:hidden}
+.prog b{display:block;height:100%;background:var(--acc);width:0;transition:width .3s ease}
+.step{font-size:.75rem;color:var(--acc);font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.field{margin-bottom:16px}
+label{display:block;font-weight:600;font-size:.95rem;margin-bottom:6px}
+.hint{display:block;color:var(--mut);font-size:.8rem;font-weight:400;margin-top:2px}
+.wrap{display:flex;align-items:center;background:var(--card);border:1.5px solid var(--line);border-radius:12px;transition:border-color .15s}
+.wrap:focus-within{border-color:var(--acc)}
+.wrap.err{border-color:var(--bad)}
+.wrap span{padding:0 0 0 14px;color:var(--mut);font-weight:600}
+.wrap span.sfx{padding:0 14px 0 0}
+input{flex:1;min-width:0;background:none;border:0;color:var(--tx);font:inherit;font-size:1.15rem;padding:15px 14px;min-height:54px;outline:0;-moz-appearance:textfield}
+.wrap span+input{padding-left:6px}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.msg{color:var(--bad);font-size:.82rem;margin-top:5px;min-height:0}
+.btn{display:block;width:100%;min-height:56px;border:0;border-radius:14px;font:inherit;font-weight:700;font-size:1.05rem;cursor:pointer;background:var(--acc);color:#fff;transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.1)}.btn:active{transform:scale(.98)}
+.btn:focus-visible,input:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.btn.ghost{background:var(--card2);color:var(--tx);border:1.5px solid var(--line)}
+.row{display:flex;gap:10px;margin-top:22px}.row .btn:first-child{flex:0 0 32%}.row .btn:last-child{flex:1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:12px}
+.k{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);font-weight:700}
+.big{font-size:clamp(2.8rem,15vw,4rem);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:6px 0 0}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.duo .card{margin:0}
+.v{font-size:1.9rem;font-weight:800;margin-top:4px;line-height:1.1}
+.badge{font-size:1.15rem}
+.COMFORTABLE{color:var(--ok)}.STRETCH{color:var(--mid)}.HIGH{color:var(--bad)}
+.bar{height:8px;background:var(--line);border-radius:4px;margin-top:14px;position:relative}
+.bar b{display:block;height:100%;border-radius:4px;background:currentColor;max-width:100%}
+.scale{display:flex;justify-content:space-between;font-size:.7rem;color:var(--mut);margin-top:6px}
+dl{margin:10px 0 0}
+.li{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+.li:last-child{border:0}.li dt{color:var(--mut)}.li dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
+.note{color:var(--mut);font-size:.85rem}
+.fine{color:var(--mut);font-size:.78rem;margin-top:14px}
+</style>
+</head>
+<body>
+<main>
+<div class="brand"><i></i>Smart Car Buyer</div>
+
+<section id="s0" class="on">
+  <h1>Can You Actually <em>Afford</em> This Car?</h1>
+  <p class="sub">Don't just calculate the monthly payment. Calculate the real cost of owning it.</p>
+  <button class="btn" id="start" type="button">Start Calculator</button>
+  <p class="fine">Runs entirely in your browser. Nothing is stored or sent anywhere.</p>
+</section>
+
+<div id="steps"></div>
+<section id="s4"></section>
+</main>
+
+<script>
+//CALC-START
+function calc(i){
+  var months=Math.round(i.years*12);
+  var financed=Math.max(i.price-i.down,0);
+  var r=i.rate/100/12;
+  var loan;
+  if(financed<=0||months<=0){loan=0;}
+  else if(r===0){loan=financed/months;}
+  else{loan=financed*r/(1-Math.pow(1+r,-months));}
+  var monthly=loan+i.insurance+i.fuel+i.maintenance+i.parking+i.other;
+  var pct=monthly/i.income*100;
+  var level=pct<20?'COMFORTABLE':(pct<=30?'STRETCH':'HIGH COST');
+  return {financed:financed,months:months,loan:loan,monthly:monthly,pct:pct,level:level,
+    year1:i.down+12*monthly,year3:i.down+36*monthly,
+    left:i.income-i.debt-i.housing-monthly};
+}
+//CALC-END
+
+var STEPS=[
+ {k:'Step 1 of 3',t:'Income & finances',l:'Use take-home pay (after tax).',f:[
+  ['income','Monthly after-tax income','$','',"Required. Must be more than 0.",{req:1,pos:1}],
+  ['debt','Other monthly debt payments','$','','Credit cards, student loans, other loans. Leave blank if none.',{}],
+  ['housing','Monthly housing / living costs','$','','Rent or mortgage, utilities, groceries, etc. Leave blank if unsure.',{}]]},
+ {k:'Step 2 of 3',t:'Car information',l:'The vehicle and how you plan to pay for it.',f:[
+  ['price','Vehicle price','$','','Required. Must be more than 0.',{req:1,pos:1}],
+  ['down','Down payment','$','','Cannot be higher than the vehicle price. Blank = $0.',{}],
+  ['rate','Annual interest rate','','%','Required. Enter 0 for a 0% loan.',{req:1,max:40}],
+  ['years','Loan term','','years','Required. Between 1 and 10 years.',{req:1,min:1,max:10}]]},
+ {k:'Step 3 of 3',t:'Ownership expenses',l:'Monthly costs besides the loan. Blank = $0.',f:[
+  ['insurance','Insurance','$','','Per month.',{}],
+  ['fuel','Fuel','$','','Per month.',{}],
+  ['maintenance','Maintenance','$','','Averaged per month (service, tires, repairs).',{}],
+  ['parking','Parking / tolls','$','','Per month.',{}],
+  ['other','Other monthly car expenses','$','','Registration, washes, accessories, etc.',{}]]}
+];
+var MAXMONEY=10000000;
+var $=function(id){return document.getElementById(id)};
+var cur=0;
+
+function build(){
+  var h='';
+  STEPS.forEach(function(s,n){
+    h+='<section id="s'+(n+1)+'"><div class="prog"><b style="width:'+((n+1)/3*100)+'%"></b></div><div class="step">'+s.k+'</div><h2>'+s.t+'</h2><p class="lead">'+s.l+'</p>';
+    s.f.forEach(function(f){
+      h+='<div class="field"><label for="'+f[0]+'">'+f[1]+'<span class="hint">'+f[4]+'</span></label>'+
+      '<div class="wrap" id="w_'+f[0]+'">'+(f[2]?'<span aria-hidden="true">'+f[2]+'</span>':'')+
+      '<input id="'+f[0]+'" type="number" inputmode="decimal" min="0" step="any" autocomplete="off" aria-describedby="e_'+f[0]+'">'+
+      (f[3]?'<span class="sfx" aria-hidden="true">'+f[3]+'</span>':'')+'</div><div class="msg" id="e_'+f[0]+'" role="alert"></div></div>';
+    });
+    h+='<div class="row"><button class="btn ghost" type="button" data-back>Back</button><button class="btn" type="button" data-next>'+(n===2?'See Results':'Next')+'</button></div></section>';
+  });
+  $('steps').innerHTML=h;
+}
+
+function show(n){
+  cur=n;
+  document.querySelectorAll('section').forEach(function(s){s.classList.remove('on')});
+  $('s'+n).classList.add('on');
+  window.scrollTo(0,0);
+  var first=$('s'+n).querySelector('input');
+  if(first&&n>0&&n<4){try{first.focus({preventScroll:true})}catch(e){}}
+}
+
+function read(id){
+  var raw=$(id).value.trim();
+  if(raw==='')return {blank:true,v:0};
+  var v=Number(raw);
+  return {blank:false,v:v};
+}
+
+function validate(n){
+  var ok=true;
+  STEPS[n-1].f.forEach(function(f){
+    var id=f[0],o=f[5],r=read(id),m='';
+    if(r.blank){ if(o.req)m='Please enter a value.'; }
+    else if(!isFinite(r.v))m='Enter a valid number.';
+    else if(r.v<0)m='Cannot be negative.';
+    else if(o.pos&&r.v<=0)m='Must be more than 0.';
+    else if(o.min!==undefined&&r.v<o.min)m='Must be at least '+o.min+'.';
+    else if(o.max!==undefined&&r.v>o.max)m='Must be '+o.max+' or less.';
+    else if(!o.max&&r.v>MAXMONEY)m='Please enter a smaller amount.';
+    if(!m&&id==='down'&&r.v>read('price').v&&!read('price').blank)m='Down payment cannot exceed the vehicle price.';
+    $('e_'+id).textContent=m;
+    $('w_'+id).classList.toggle('err',!!m);
+    $(id).setAttribute('aria-invalid',m?'true':'false');
+    if(m)ok=false;
+  });
+  if(!ok){var bad=$('s'+n).querySelector('[aria-invalid="true"]');if(bad)bad.focus();}
+  return ok;
+}
+
+function gather(){
+  var g=function(id){return read(id).v};
+  return {income:g('income'),debt:g('debt'),housing:g('housing'),price:g('price'),down:g('down'),rate:g('rate'),years:g('years'),
+    insurance:g('insurance'),fuel:g('fuel'),maintenance:g('maintenance'),parking:g('parking'),other:g('other')};
+}
+
+var f0=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+var f2=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+var usd0=function(n){return isFinite(n)?f0.format(n):'—'};
+var usd2=function(n){return isFinite(n)?f2.format(n):'—'};
+
+function render(){
+  var i=gather(),c=calc(i);
+  var cls=c.level==='HIGH COST'?'HIGH':c.level;
+  var w=Math.min(c.pct/40*100,100);
+  var rows=[['Loan payment',c.loan],['Insurance',i.insurance],['Fuel',i.fuel],['Maintenance',i.maintenance],['Parking/tolls',i.parking],['Other',i.other]];
+  var h='<div class="step" style="margin-top:22px">Your results</div>'+
+  '<div class="card" style="margin-top:10px"><div class="k">Your estimated monthly car cost</div><div class="big">'+usd0(c.monthly)+'</div><div class="note">per month, all-in</div></div>'+
+  '<div class="duo"><div class="card"><div class="k">Car cost / income</div><div class="v">'+c.pct.toFixed(1)+'%</div></div>'+
+  '<div class="card"><div class="k">Affordability</div><div class="v badge '+cls+'">'+c.level+'</div></div></div>'+
+  '<div class="card" style="margin-top:12px;color:var(--'+(cls==='COMFORTABLE'?'ok':cls==='STRETCH'?'mid':'bad')+')"><div class="bar" role="img" aria-label="Car cost is '+c.pct.toFixed(1)+' percent of income"><b style="width:'+w+'%"></b></div><div class="scale" style="color:var(--mut)"><span>0%</span><span>20%</span><span>30%</span><span>40%+</span></div></div>'+
+  '<div class="card"><div class="k">Monthly breakdown</div><dl>'+rows.map(function(r){return '<div class="li"><dt>'+r[0]+'</dt><dd>'+usd2(r[1])+'</dd></div>'}).join('')+
+  '<div class="li"><dt><b style="color:var(--tx)">Total</b></dt><dd>'+usd2(c.monthly)+'</dd></div></dl>'+
+  '<p class="note" style="margin:10px 0 0">Amount financed: '+usd2(c.financed)+' over '+c.months+' months.</p></div>'+
+  '<div class="duo"><div class="card"><div class="k">First-year estimated cost</div><div class="v">'+usd0(c.year1)+'</div></div>'+
+  '<div class="card"><div class="k">Three-year estimated cost</div><div class="v">'+usd0(c.year3)+'</div></div></div>'+
+  '<div class="card" style="margin-top:12px"><div class="k">Left after debt, housing &amp; car</div><div class="v" style="font-size:1.4rem">'+usd0(c.left)+' <span class="note" style="font-weight:400">/ month</span></div>'+
+  '<p class="note" style="margin:6px 0 0">Monthly income minus other debt, housing/living costs and the total car cost. Informational only; it does not change the rating.</p></div>'+
+  '<p class="note">This estimate shows what this vehicle could cost you based on the information you entered. Actual costs vary depending on financing, insurance, fuel prices, maintenance and driving habits.</p>'+
+  '<p class="fine">Affordability labels use this calculator\'s own planning ranges: below 20% of monthly income = Comfortable, 20%–30% = Stretch, above 30% = High Cost. They are not official financial rules or financial advice. Please consider your own financial situation. Three-year and first-year costs include the down payment and exclude depreciation, taxes/fees, and any resale value.</p>'+
+  '<div class="row"><button class="btn" type="button" id="change">Change Inputs</button></div>';
+  $('s4').innerHTML=h;
+  $('change').onclick=function(){show(1)};
+}
+
+document.addEventListener('click',function(e){
+  var t=e.target;
+  if(t.id==='start')show(1);
+  else if(t.hasAttribute('data-next')){ if(validate(cur)){ if(cur===3){render();show(4);} else show(cur+1);} }
+  else if(t.hasAttribute('data-back'))show(cur-1);
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&e.target.tagName==='INPUT'){var b=$('s'+cur).querySelector('[data-next]');if(b)b.click();}
+});
+build();
+</script>
+</body>
+</html>
